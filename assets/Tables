@@ -1,0 +1,62 @@
+........................... USER TABLE................................
+
+CREATE TABLE userinformation.users (
+    email VARCHAR(100) PRIMARY KEY,  -- Email as Primary Key
+    username VARCHAR(50) NOT NULL CHECK (username REGEXP '^[A-Za-z]+$'),  -- Only alphabets allowed
+    country VARCHAR(50) NOT NULL,
+    phone VARCHAR(20) UNIQUE NOT NULL CHECK (phone REGEXP '^[0-9]+$'),  -- Only digits allowed
+    password VARCHAR(255) NOT NULL,
+    profile_image TEXT,  -- URL or Base64 for profile picture
+    session_id VARCHAR(255) UNIQUE  -- Unique session ID for login sessions
+);
+
+
+
+............................... ADMIN TABLE ...........................
+
+CREATE TABLE userinformation.admins (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    country VARCHAR(255),
+    phone VARCHAR(255),
+    profile_image VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+// ------------------- notifaction ------------------
+CREATE TABLE userinformation.notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_email VARCHAR(255) NOT NULL, -- Email of the admin sending the notification
+    receiver_email VARCHAR(100), -- Email of the specific user (NULL if sent to all users)
+    message TEXT NOT NULL, -- Notification message content
+    is_seen BOOLEAN DEFAULT FALSE, -- Whether the user has seen the notification
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp of when the notification was sent
+    FOREIGN KEY (sender_email) REFERENCES userinformation.admins(email),
+    FOREIGN KEY (receiver_email) REFERENCES userinformation.users(email) ON DELETE CASCADE
+);
+
+
+CREATE TABLE userinformation.notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_email VARCHAR(255) NOT NULL, -- Email of the admin sending the notification
+    receiver_email VARCHAR(100), -- Email of the specific user (NULL if sent to all users)
+    message TEXT NOT NULL, -- Notification message content
+    is_seen BOOLEAN DEFAULT FALSE, -- Whether the user has seen the notification
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp of when the notification was sent
+    FOREIGN KEY (sender_email) REFERENCES userinformation.admins(email),
+    FOREIGN KEY (receiver_email) REFERENCES userinformation.users(email) ON DELETE CASCADE
+);
+CREATE TABLE userinformation.feedback (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_email VARCHAR(100) NOT NULL,
+    notification_id INT NOT NULL,
+    feedback TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_email) REFERENCES userinformation.users(email) ON DELETE CASCADE,
+    FOREIGN KEY (notification_id) REFERENCES userinformation.notifications(id) ON DELETE CASCADE
+);
+
+ALTER TABLE userinformation.users 
+ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
